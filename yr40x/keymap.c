@@ -149,14 +149,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 
-// Karabiner parity: left shift + space = backspace, right shift + space =
-// forward delete. MOD_BIT rather than MOD_MASK_SHIFT so the two shifts do
-// different things, as the Karabiner rule does.
+// Karabiner parity: shift + space = backspace (left) / forward delete (right).
+//
+// The trigger is the LAYER-TAP keycode, not KC_SPC. process_record_quantum
+// computes `keycode = get_record_keycode(record, true)` -- the raw keymap
+// keycode -- and passes that to process_key_override *before* tap-hold
+// resolution. Both thumbs hold LT(), so an override on KC_SPC never matches.
+// Overriding on LT() is fine: the match is a plain `override->trigger ==
+// keycode` equality, with no basic-keycode restriction.
+//
+// Four entries so either thumb works, as Karabiner had one spacebar. Without
+// shift these never match and the LT keys behave normally.
 // Appended deliberately -- never edit keymaps[] here, Oryx regenerates it.
-const key_override_t bspc_ovr = ko_make_basic(MOD_BIT(KC_LSFT), KC_SPC, KC_BSPC);
-const key_override_t del_ovr  = ko_make_basic(MOD_BIT(KC_RSFT), KC_SPC, KC_DEL);
+const key_override_t bspc_l = ko_make_basic(MOD_BIT(KC_LSFT), LT(3, KC_SPACE), KC_BSPC);
+const key_override_t bspc_r = ko_make_basic(MOD_BIT(KC_LSFT), LT(1, KC_SPACE), KC_BSPC);
+const key_override_t del_l  = ko_make_basic(MOD_BIT(KC_RSFT), LT(3, KC_SPACE), KC_DEL);
+const key_override_t del_r  = ko_make_basic(MOD_BIT(KC_RSFT), LT(1, KC_SPACE), KC_DEL);
 
 const key_override_t *key_overrides[] = {
-    &bspc_ovr,
-    &del_ovr,
+    &bspc_l,
+    &bspc_r,
+    &del_l,
+    &del_r,
 };
