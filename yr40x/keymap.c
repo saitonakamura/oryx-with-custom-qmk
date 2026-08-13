@@ -147,3 +147,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
   return true;
 }
+
+
+// Karabiner parity: left shift + space = backspace, right shift + space =
+// forward delete. MOD_BIT rather than MOD_MASK_SHIFT so the two shifts do
+// different things, as the Karabiner rule does.
+// Appended deliberately -- never edit keymaps[] here, Oryx regenerates it.
+const key_override_t bspc_ovr = ko_make_basic(MOD_BIT(KC_LSFT), KC_SPC, KC_BSPC);
+const key_override_t del_ovr  = ko_make_basic(MOD_BIT(KC_RSFT), KC_SPC, KC_DEL);
+
+const key_override_t *key_overrides[] = {
+    &bspc_ovr,
+    &del_ovr,
+};
